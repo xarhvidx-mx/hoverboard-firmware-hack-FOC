@@ -1,0 +1,37 @@
+name: Build VARIANT_IBUS_TANK
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install platformio
+
+      - name: Build VARIANT_IBUS_TANK
+        run: |
+          set -e
+          pio run -e VARIANT_IBUS_TANK -v
+
+      - name: Copy firmware binary to artifact
+        run: |
+          mkdir -p out
+          cp .pio/build/VARIANT_IBUS_TANK/firmware.bin out/firmware-IBUS_TANK-debug.bin
+
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-IBUS_TANK-debug
+          path: out/firmware-IBUS_TANK-debug.bin
