@@ -859,8 +859,9 @@ void readInputRaw(void) {
         for (uint8_t i = 0; i < (IBUS_NUM_CHANNELS * 2); i+=2) {
           ibusL_captured_value[(i/2)] = CLAMP(commandL.channels[i] + (commandL.channels[i+1] << 8) - 1000, 0, INPUT_MAX); // 1000-2000 -> 0-1000
         }
-        input1[inIdx].raw = (ibusL_captured_value[0] - 500) * 2;
-        input2[inIdx].raw = (ibusL_captured_value[1] - 500) * 2; 
+        // Map configured IBUS channels to inputs (supports remapping via IBUS_CH_STEER / IBUS_CH_SPEED)
+        input1[inIdx].raw = (ibusL_captured_value[IBUS_CH_STEER] - 500) * 2;
+        input2[inIdx].raw = (ibusL_captured_value[IBUS_CH_SPEED] - 500) * 2; 
       #else
         input1[inIdx].raw = commandL.steer;
         input2[inIdx].raw = commandL.speed;
@@ -873,8 +874,9 @@ void readInputRaw(void) {
         for (uint8_t i = 0; i < (IBUS_NUM_CHANNELS * 2); i+=2) {
           ibusR_captured_value[(i/2)] = CLAMP(commandR.channels[i] + (commandR.channels[i+1] << 8) - 1000, 0, INPUT_MAX); // 1000-2000 -> 0-1000
         }
-        input1[inIdx].raw = (ibusR_captured_value[0] - 500) * 2;
-        input2[inIdx].raw = (ibusR_captured_value[1] - 500) * 2; 
+        // Map configured IBUS channels to inputs (supports remapping via IBUS_CH_STEER / IBUS_CH_SPEED)
+        input1[inIdx].raw = (ibusR_captured_value[IBUS_CH_STEER] - 500) * 2;
+        input2[inIdx].raw = (ibusR_captured_value[IBUS_CH_SPEED] - 500) * 2; 
       #else
         input1[inIdx].raw = commandR.steer;
         input2[inIdx].raw = commandR.speed;
@@ -1052,13 +1054,29 @@ void handleTimeout(void) {
  */
 void readCommand(void) {
     readInputRaw();
-
+    
     #if !defined(VARIANT_HOVERBOARD) && !defined(VARIANT_TRANSPOTTER)
       calcInputCmd(&input1[inIdx], INPUT_MIN, INPUT_MAX);
       #if !defined(VARIANT_SKATEBOARD)
         calcInputCmd(&input2[inIdx], INPUT_MIN, INPUT_MAX);
       #else
         calcInputCmd(&input2[inIdx], INPUT_BRK, INPUT_MAX);
+      #endif
+
+      /* Optional input shaping for throttle (input2) to improve low-end controllability.
+       * When enabled via CONFIG (INPUT_SHAPING_QUAD), this applies a quadratic curve:
+       *  shaped = sign(cmd) * (abs(cmd)^2 / 1000)
+       * This reduces sensitivity near zero while keeping full-scale at the end of the stick.
+       */
+      #ifdef INPUT_SHAPING_QUAD
+        {
+          int16_t v = input2[inIdx].cmd;
+          int sign = (v >= 0) ? 1 : -1;
+          int abs_v = abs(v);
+          int shaped = (abs_v * abs_v) / 1000; /* keeps 0..1000 range */
+          if (shaped > INPUT_MAX) shaped = INPUT_MAX;
+          input2[inIdx].cmd = (int16_t)(sign * shaped);
+        }
       #endif
     #endif
 

@@ -146,9 +146,8 @@
 #define MOTOR_LEFT_ENA                  // [-] Enable LEFT motor.  Comment-out if this motor is not needed to be operational
 #define MOTOR_RIGHT_ENA                 // [-] Enable RIGHT motor. Comment-out if this motor is not needed to be operational
 
-// Control selections
 #define CTRL_TYP_SEL    FOC_CTRL        // [-] Control type selection: COM_CTRL, SIN_CTRL, FOC_CTRL (default)
-#define CTRL_MOD_REQ    VLT_MODE        // [-] Control mode request: OPEN_MODE, VLT_MODE (default), SPD_MODE, TRQ_MODE. Note: SPD_MODE and TRQ_MODE are only available for CTRL_FOC!
+#define CTRL_MOD_REQ    SPD_MODE        // [-] Control mode request: OPEN_MODE, VLT_MODE, SPD_MODE, TRQ_MODE. SPD_MODE = SPEED mode for smooth low-speed control
 #define DIAG_ENA        1               // [-] Motor Diagnostics enable flag: 0 = Disabled, 1 = Enabled (default)
 
 // Limitation settings
@@ -165,9 +164,10 @@
 
 // Extra functionality
 // #define STANDSTILL_HOLD_ENABLE          // [-] Flag to hold the position when standtill is reached. Only available and makes sense for VOLTAGE or TORQUE mode.
-// #define ELECTRIC_BRAKE_ENABLE           // [-] Flag to enable electric brake and replace the motor "freewheel" with a constant braking when the input torque request is 0. Only available and makes sense for TORQUE mode.
-// #define ELECTRIC_BRAKE_MAX    100       // (0, 500) Maximum electric brake to be applied when input torque request is 0 (pedal fully released).
-// #define ELECTRIC_BRAKE_THRES  120       // (0, 500) Threshold below at which the electric brake starts engaging.
+#define ELECTRIC_BRAKE_ENABLE           // [-] Flag to enable electric brake and replace the motor "freewheel" with a constant braking when the input torque request is 0. Only available and makes sense for TORQUE mode.
+// Optional tuning parameters (defaults used if not modified below)
+#define ELECTRIC_BRAKE_MAX    100       // (0, 500) Maximum electric brake to be applied when input torque request is 0 (pedal fully released).
+#define ELECTRIC_BRAKE_THRES  120       // (0, 500) Threshold below at which the electric brake starts engaging.
 // ########################### END OF MOTOR CONTROL ########################
 
 
@@ -466,6 +466,15 @@
   #define IBUS_COMMAND            0x40
   #define USART3_BAUD             115200
 
+  // IBUS channel mapping: change these to select which IBUS channel is used for steering and speed
+  // Channels are zero-indexed: 0 = first channel from the receiver
+  #ifndef IBUS_CH_STEER
+    #define IBUS_CH_STEER 0    // default: channel 1
+  #endif
+  #ifndef IBUS_CH_SPEED
+    #define IBUS_CH_SPEED 1    // default: channel 2
+  #endif
+
   // #define DUAL_INPUTS                     // ADC*(Primary) + iBUS(Auxiliary). Uncomment this to use Dual-inputs
   #ifdef DUAL_INPUTS
     #define FLASH_WRITE_KEY       0x1106  // Flash memory writing key. Change this key to ignore the input calibrations from the flash memory and use the ones in config.h
@@ -480,11 +489,22 @@
     #define FLASH_WRITE_KEY       0x1006  // Flash memory writing key. Change this key to ignore the input calibrations from the flash memory and use the ones in config.h
     #define CONTROL_SERIAL_USART3 0       // use RC iBUS input on the RIGHT cable, disable if ADC or PPM is used!
     #define FEEDBACK_SERIAL_USART3        // right sensor board cable, disable if ADC or PPM is used!
-    #define PRI_INPUT1            3, -1000, 0, 1000, 0  // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
-    #define PRI_INPUT2            3, -1000, 0, 1000, 0  // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
+  #define PRI_INPUT1            3, -1000, 0, 1000, 0  // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
+  // Increase deadband on PRI_INPUT2 to reduce low-end sensitivity on throttle (IBUS channel 2)
+  #define PRI_INPUT2            3, -1000, 0, 1000, 200  // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
+
+  // Tuning adjustments for low-speed, high-torque use-case:
+  // - Reduce SPEED_COEFFICIENT so the same input produces a lower speed target (less touchy)
+  // - Soften input filtering to reduce jitter
+  // - Enable a quadratic input shaping for throttle which reduces low-end sensitivity while
+  //   preserving full-scale command at the end of the stick travel.
+  #define SPEED_COEFFICIENT     8192    // 0.5f - lower value => less aggressive mapping from input->speed target
+  #define FILTER                3276    // 0.05f - softer filter for input smoothing
+  #define INPUT_SHAPING_QUAD            // enable quadratic shaping on throttle input (input2)
   #endif
 
-  // #define TANK_STEERING                // use for tank steering, each input controls each wheel 
+  // Enable tank steering so each input channel controls one wheel independently
+  #define TANK_STEERING                // use for tank steering, each input controls each wheel 
 
   #if defined(CONTROL_SERIAL_USART3) && !defined(DUAL_INPUTS)
     #define DEBUG_SERIAL_USART2           // left sensor cable debug

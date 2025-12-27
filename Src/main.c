@@ -493,7 +493,13 @@ int main(void) {
         #if defined(DEBUG_SERIAL_PROTOCOL)
           process_debug();
         #else
-          printf("in1:%i in2:%i cmdL:%i cmdR:%i BatADC:%i BatV:%i TempADC:%i Temp:%i \r\n",
+          /* Extended debug output: includes measured motor speeds and q-axis currents
+           * Fields:
+           * in1 raw, in2 raw, cmdL, cmdR, BatADC, BatV, TempADC, Temp,
+           * speedL_meas, speedR_meas, iqL, iqR, left_dc_curr, right_dc_curr
+           */
+          printf("in1:%i in2:%i cmdL:%i cmdR:%i BatADC:%i BatV:%i TempADC:%i Temp:%i "
+                 "speedL:%i speedR:%i iqL:%i iqR:%i iL:%i iR:%i\r\n",
             input1[inIdx].raw,        // 1: INPUT1
             input2[inIdx].raw,        // 2: INPUT2
             cmdL,                     // 3: output command: [-1000, 1000]
@@ -501,7 +507,13 @@ int main(void) {
             adc_buffer.batt1,         // 5: for battery voltage calibration
             batVoltageCalib,          // 6: for verifying battery voltage calibration
             board_temp_adcFilt,       // 7: for board temperature calibration
-            board_temp_deg_c);        // 8: for verifying board temperature calibration
+            board_temp_deg_c,         // 8: for verifying board temperature calibration
+            (int16_t)rtY_Left.n_mot,  // 9: measured left motor speed
+            (int16_t)rtY_Right.n_mot, //10: measured right motor speed
+            (int16_t)rtY_Left.iq,     //11: measured left q-axis current (torque)
+            (int16_t)rtY_Right.iq,    //12: measured right q-axis current (torque)
+            left_dc_curr,             //13: left DC link current *100
+            right_dc_curr);           //14: right DC link current *100
         #endif
       }
     #endif
