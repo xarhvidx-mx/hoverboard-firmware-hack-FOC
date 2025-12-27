@@ -1070,12 +1070,32 @@ void readCommand(void) {
        */
       #ifdef INPUT_SHAPING_QUAD
         {
+          /* When tank steering is enabled each stick controls a wheel independently.
+           * Apply the same quadratic shaping to both inputs so the two channels behave
+           * symmetrically. Otherwise only shape the throttle (input2) as before.
+           */
+#if defined(TANK_STEERING)
+          int16_t v1 = input1[inIdx].cmd;
+          int sign1 = (v1 >= 0) ? 1 : -1;
+          int abs_v1 = abs(v1);
+          int shaped1 = (abs_v1 * abs_v1) / 1000;
+          if (shaped1 > INPUT_MAX) shaped1 = INPUT_MAX;
+          input1[inIdx].cmd = (int16_t)(sign1 * shaped1);
+
+          int16_t v2 = input2[inIdx].cmd;
+          int sign2 = (v2 >= 0) ? 1 : -1;
+          int abs_v2 = abs(v2);
+          int shaped2 = (abs_v2 * abs_v2) / 1000;
+          if (shaped2 > INPUT_MAX) shaped2 = INPUT_MAX;
+          input2[inIdx].cmd = (int16_t)(sign2 * shaped2);
+#else
           int16_t v = input2[inIdx].cmd;
           int sign = (v >= 0) ? 1 : -1;
           int abs_v = abs(v);
           int shaped = (abs_v * abs_v) / 1000; /* keeps 0..1000 range */
           if (shaped > INPUT_MAX) shaped = INPUT_MAX;
           input2[inIdx].cmd = (int16_t)(sign * shaped);
+#endif
         }
       #endif
     #endif
