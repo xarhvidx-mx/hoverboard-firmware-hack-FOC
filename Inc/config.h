@@ -491,8 +491,8 @@
     #define FEEDBACK_SERIAL_USART3        // right sensor board cable, disable if ADC or PPM is used!
   #define PRI_INPUT1            3, -1000, 0, 1000, 0  // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
   // Increase deadband on PRI_INPUT2 to reduce low-end sensitivity on throttle (IBUS channel 2)
-  // Use a modest deadband (100) to keep some smoothing while making channels more symmetric
-  #define PRI_INPUT2            3, -1000, 0, 1000, 100  // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
+  // Use a slightly larger deadband (150) for test-1 to see if this removes the low-end asymmetry
+  #define PRI_INPUT2            3, -1000, 0, 1000, 150  // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
 
   // Tuning adjustments for low-speed, high-torque use-case:
   // - Reduce SPEED_COEFFICIENT so the same input produces a lower speed target (less touchy)
