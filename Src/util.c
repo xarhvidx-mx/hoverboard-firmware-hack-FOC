@@ -1101,9 +1101,9 @@ void readCommand(void) {
           input2[inIdx].cmd = (int16_t)(sign * shaped);
 #endif
 
-          /* Debug print: show raw, post-deadband (pre-shape), and post-shape values */
+          /* Compact CSV debug print to avoid garbling and make parsing reliable. */
           #if defined(DEBUG_SERIAL_USART2) || defined(DEBUG_SERIAL_USART3)
-            printf("DBG_IN raw1:%d raw2:%d pre1:%d pre2:%d post1:%d post2:%d db1:%d db2:%d\r\n",
+            printf("DBG_IN_CSV,%d,%d,%d,%d,%d,%d,%d,%d\r\n",
                    input1[inIdx].raw, input2[inIdx].raw,
                    pre_shaped1, pre_shaped2,
                    input1[inIdx].cmd, input2[inIdx].cmd,
