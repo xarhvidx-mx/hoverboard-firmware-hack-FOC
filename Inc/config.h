@@ -489,9 +489,9 @@
     #define FLASH_WRITE_KEY       0x1006  // Flash memory writing key. Change this key to ignore the input calibrations from the flash memory and use the ones in config.h
     #define CONTROL_SERIAL_USART3 0       // use RC iBUS input on the RIGHT cable, disable if ADC or PPM is used!
     #define FEEDBACK_SERIAL_USART3        // right sensor board cable, disable if ADC or PPM is used!
-  #define PRI_INPUT1            3, -1000, 0, 1000, 0  // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
-  // Set both deadbands to 0 for test: user requested zero deadband on both inputs
-  #define PRI_INPUT2            3, -1000, 0, 1000, 0    // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
+  #define PRI_INPUT1            3, -1000, 0, 1000, 150  // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
+  // Increase both deadbands to 150 for DOS behavior test (user request)
+  #define PRI_INPUT2            3, -1000, 0, 1000, 150    // TYPE, MIN, MID, MAX, DEADBAND. See INPUT FORMAT section
 
   // Tuning adjustments for low-speed, high-torque use-case:
   // - Reduce SPEED_COEFFICIENT so the same input produces a lower speed target (less touchy)
