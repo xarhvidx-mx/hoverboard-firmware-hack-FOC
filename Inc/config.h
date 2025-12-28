@@ -147,7 +147,7 @@
 #define MOTOR_RIGHT_ENA                 // [-] Enable RIGHT motor. Comment-out if this motor is not needed to be operational
 
 #define CTRL_TYP_SEL    FOC_CTRL        // [-] Control type selection: COM_CTRL, SIN_CTRL, FOC_CTRL (default)
-#define CTRL_MOD_REQ    TRQ_MODE        // [-] Control mode request: OPEN_MODE, VLT_MODE, SPD_MODE, TRQ_MODE. TRQ_MODE = TORQUE mode for direct torque control
+#define CTRL_MOD_REQ    SPD_MODE        // [-] Control mode request: OPEN_MODE, VLT_MODE, SPD_MODE, TRQ_MODE. SPD_MODE = SPEED mode for smooth low-speed control
 #define DIAG_ENA        1               // [-] Motor Diagnostics enable flag: 0 = Disabled, 1 = Enabled (default)
 
 // Limitation settings
@@ -498,8 +498,8 @@
   // - Soften input filtering to reduce jitter
   // - Enable a quadratic input shaping for throttle which reduces low-end sensitivity while
   //   preserving full-scale command at the end of the stick travel.
-  #define SPEED_COEFFICIENT     8192    // 0.5f - lower value => less aggressive mapping from input->speed target
-  #define FILTER                3276    // 0.05f - softer filter for input smoothing
+  #define SPEED_COEFFICIENT     16384   // 1.0f - stronger mapping from input->speed target (increased for more low-speed torque)
+  #define FILTER                1638    // 0.025f - slightly less filtering for more responsive input
   #define INPUT_SHAPING_QUAD            // enable quadratic shaping on throttle input (input2)
   #endif
 
