@@ -151,8 +151,8 @@
 #define DIAG_ENA        1               // [-] Motor Diagnostics enable flag: 0 = Disabled, 1 = Enabled (default)
 
 // Limitation settings
-#define I_MOT_MAX       22              // [A] Maximum single motor current limit (increased for stronger low-speed torque)
-#define I_DC_MAX        24              // [A] Maximum stage2 DC Link current limit (must be >= I_MOT_MAX + 2A)
+#define I_MOT_MAX       30              // [A] Maximum single motor current limit (increased for Option A testing)
+#define I_DC_MAX        32              // [A] Maximum stage2 DC Link current limit (must be >= I_MOT_MAX + 2A)
 #define N_MOT_MAX       1000            // [rpm] Maximum motor speed limit
 
 // Field Weakening / Phase Advance

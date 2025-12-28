@@ -298,7 +298,7 @@ P rtP_Left = {
   /* Variable: cf_iqKp
    * Referenced by: '<S62>/cf_iqKp'
    */
-  1229U,
+  1600U,
 
   /* Variable: cf_nKp
    * Referenced by: '<S61>/cf_nKp'
@@ -318,7 +318,7 @@ P rtP_Left = {
   /* Variable: cf_iqKi
    * Referenced by: '<S62>/cf_iqKi'
    */
-  1229U,
+  1600U,
 
   /* Variable: cf_iqKiLimProt
    * Referenced by:
