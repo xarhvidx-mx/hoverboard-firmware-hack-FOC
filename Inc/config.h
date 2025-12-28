@@ -501,7 +501,7 @@
   //   preserving full-scale command at the end of the stick travel.
   #define SPEED_COEFFICIENT     8192    // 0.5f - lower value => less aggressive mapping from input->speed target
   #define FILTER                3276    // 0.05f - softer filter for input smoothing
-  // #define INPUT_SHAPING_QUAD          // DISABLED for test-2: remove quadratic shaping to see if asymmetry originates here
+  #define INPUT_SHAPING_QUAD            // enable quadratic shaping on throttle input (input2)
   #endif
 
   // Enable tank steering so each input channel controls one wheel independently
