@@ -150,9 +150,9 @@
 #define CTRL_MOD_REQ    SPD_MODE        // [-] Control mode request: OPEN_MODE, VLT_MODE, SPD_MODE, TRQ_MODE. SPD_MODE = SPEED mode for smooth low-speed control
 #define DIAG_ENA        1               // [-] Motor Diagnostics enable flag: 0 = Disabled, 1 = Enabled (default)
 
-// Limitation settings
-#define I_MOT_MAX       30              // [A] Maximum single motor current limit (increased for Option A testing)
-#define I_DC_MAX        32              // [A] Maximum stage2 DC Link current limit (must be >= I_MOT_MAX + 2A)
+#// Limitation settings
+#define I_MOT_MAX       110             // [A] Maximum single motor current limit (AGGRESSIVE Option A)
+#define I_DC_MAX        55              // [A] Maximum stage2 DC Link current limit (AGGRESSIVE Option A). Test with short bursts only.
 #define N_MOT_MAX       1000            // [rpm] Maximum motor speed limit
 
 // Field Weakening / Phase Advance
@@ -252,6 +252,8 @@
 // #define DEBUG_SERIAL_USART2          // left sensor board cable, disable if ADC or PPM is used!
 // #define DEBUG_SERIAL_USART3          // right sensor board cable, disable if I2C (nunchuk or lcd) is used!
 // #define DEBUG_SERIAL_PROTOCOL        // uncomment this to send user commands to the board, change parameters and print specific signals (see comms.c for the user commands)
+// Enable compact telemetry lines for Option B testing
+#define DEBUG_TEST_B
 // ########################### END OF DEBUG SERIAL ############################
 
 
