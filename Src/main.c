@@ -112,6 +112,13 @@ int16_t right_dc_curr;           // global variable for Right DC Link current
 int16_t dc_curr;                 // global variable for Total DC Link current 
 int16_t cmdL;                    // global variable for Left Command 
 int16_t cmdR;                    // global variable for Right Command 
+// Phase/DC currents populated in ISR (bldc.c) - expose here for telemetry
+extern int16_t curL_phaA;
+extern int16_t curL_phaB;
+extern int16_t curL_DC;
+extern int16_t curR_phaB;
+extern int16_t curR_phaC;
+extern int16_t curR_DC;
 
 //------------------------------------------------------------------------
 // Local variables
@@ -168,6 +175,11 @@ static uint16_t rate = RATE; // Adjustable rate to support multiple drive modes 
   static uint8_t drive_mode;
   static uint16_t max_speed;
 #endif
+
+// Telemetry maxima for Option B testing
+static int16_t max_dc_peak = 0;       // Total DC current *100
+static int16_t max_phaseL_peak = 0;   // approximate phase current peaks (raw ADC units)
+static int16_t max_phaseR_peak = 0;
 
 
 int main(void) {
@@ -525,6 +537,30 @@ int main(void) {
       right_dc_curr);
           #endif
         #endif /* DEBUG_SERIAL_VERBOSE */
+
+        /* Compact Option B telemetry for automated parsing. Prints every 125ms
+         * when DEBUG_TEST_B is defined and a debug USART is enabled. Fields are
+         * all integers; DC values are in A*100 (same scaling as other telemetry).
+         */
+#if defined(DEBUG_TEST_B)
+        {
+          /* update maxima (store absolute values) */
+          int16_t abs_dc = dc_curr < 0 ? -dc_curr : dc_curr;
+          if (abs_dc > max_dc_peak) max_dc_peak = abs_dc;
+
+          int16_t abs_phL = ABS(curL_phaA);
+          if (abs_phL > max_phaseL_peak) max_phaseL_peak = abs_phL;
+
+          int16_t abs_phR = ABS(curR_phaB);
+          if (abs_phR > max_phaseR_peak) max_phaseR_peak = abs_phR;
+
+          /* CSV-like compact line for easy parsing */
+          printf("DBG_TEST_B,ldc:%d,rdc:%d,tot:%d,lphA:%d,lphB:%d,rphB:%d,rphC:%d,maxDC:%d,maxPL:%d,maxPR:%d\r\n",
+            left_dc_curr, right_dc_curr, dc_curr,
+            curL_phaA, curL_phaB, curR_phaB, curR_phaC,
+            max_dc_peak, max_phaseL_peak, max_phaseR_peak);
+        }
+#endif
       }
     #endif
 
